@@ -1,0 +1,497 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Doctoral dissertation of In-Sung Jang: vision-based absolute positioning of AAM aircraft using national 3D spatial information as a reference map.">
+<title>AAM Visual Positioning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;600&display=swap">
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+
+/* Layout: survey-sheet page — fixed index column on the left (desktop), one reading column of ~68ch, figures break wider. */
+:root{
+  --paper:#f4f6f5; --sheet:#ffffff; --ink:#15212b; --muted:#56626d; --rule:#d5dcdf;
+  --accent:#0d6b66; --signal:#b9530d; --tint:#e6efed; --code:#eef2f1;
+  --f-display:"Archivo","Noto Sans KR",system-ui,sans-serif;
+  --f-body:"Source Serif 4","Noto Serif KR",Georgia,serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-kr:"Noto Sans KR",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1419; --sheet:#141c22; --ink:#e3e8ec; --muted:#98a4ae; --rule:#26323b;
+  --accent:#45b5ab; --signal:#f0904a; --tint:#17292a; --code:#18232a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1419; --sheet:#141c22; --ink:#e3e8ec; --muted:#98a4ae; --rule:#26323b;
+  --accent:#45b5ab; --signal:#f0904a; --tint:#17292a; --code:#18232a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.65;padding-inline:16px;padding-block:0}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:2px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}.toc{display:none}}
+
+/* index column */
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 28px);align-self:start;padding-top:28px;font-family:var(--f-display);font-size:.84rem}
+.toc .lbl{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;border-left:1px solid var(--rule)}
+.toc a{display:block;padding:4px 12px;color:var(--muted);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+
+main{min-width:0;padding-bottom:80px}
+section>p,section>ul,section>h2,section>h3,section>.sub,.abstract,.contrib,.draft{max-width:68ch}
+
+/* hero */
+header.hero{position:relative;padding-block:56px 40px;border-bottom:1px solid var(--rule)}
+#contours{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+.hero>*:not(canvas){position:relative}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+h1{font-family:var(--f-display);font-stretch:82%;font-weight:750;font-size:clamp(2rem,5.2vw,3.35rem);line-height:1.06;letter-spacing:-.01em;margin:14px 0 14px;text-wrap:balance;max-width:20ch}
+.kr-title{font-family:var(--f-kr);font-size:1.05rem;color:var(--muted);margin:0 0 22px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:var(--f-display);font-size:.95rem}
+.meta b{font-weight:650}
+.meta span{color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{font-family:var(--f-display);font-weight:600;font-size:.9rem;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;background:var(--sheet);border-radius:3px}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.pending{border-style:dashed;color:var(--muted);border-color:var(--muted)}
+.btn.pending:hover{background:transparent;color:var(--ink)}
+.btn small{font-family:var(--f-mono);font-size:.68rem;font-weight:400}
+
+/* sections */
+section{padding-top:56px;scroll-margin-top:20px}
+h2{font-family:var(--f-display);font-stretch:85%;font-weight:700;font-size:1.65rem;line-height:1.2;margin:0 0 6px;text-wrap:balance;display:flex;gap:14px;align-items:baseline}
+h2 .no{font-family:var(--f-mono);font-size:.8rem;font-weight:500;color:var(--signal);letter-spacing:.04em}
+h3{font-family:var(--f-display);font-weight:650;font-size:1.1rem;margin:30px 0 6px}
+p{margin:0 0 1em}
+.lede{font-size:1.15rem;line-height:1.6}
+.sub{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+ul.plain{padding-left:1.1em;margin:0 0 1em}
+ul.plain li{margin-bottom:.4em}
+.term{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 5px;border-radius:2px}
+
+.abstract{background:var(--sheet);border:1px solid var(--rule);padding:22px 26px;border-radius:3px}
+.abstract .kw{font-family:var(--f-display);font-size:.88rem;color:var(--muted);margin:14px 0 0}
+.abstract .kw b{color:var(--ink)}
+
+/* contribution list: genuinely enumerated in the thesis */
+.contrib{display:grid;gap:0;margin-top:8px;border-top:1px solid var(--rule)}
+.contrib div{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.contrib .n{font-family:var(--f-mono);color:var(--signal);font-size:.85rem;padding-top:3px}
+.contrib b{font-family:var(--f-display);font-weight:650}
+
+/* figure */
+figure{margin:28px 0}
+.fig-scroll{overflow-x:auto;background:var(--sheet);border:1px solid var(--rule);border-radius:3px;padding:18px}
+figcaption{font-family:var(--f-display);font-size:.86rem;color:var(--muted);margin-top:10px;max-width:68ch}
+figcaption b{color:var(--ink)}
+svg text{font-family:var(--f-display)}
+
+/* compare grid */
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}
+@media (max-width:720px){.three{grid-template-columns:minmax(0,1fr)}}
+.three>div{background:var(--sheet);border:1px solid var(--rule);padding:16px;border-radius:3px;min-width:0}
+.three .tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.three .tag.primary{color:var(--accent)}
+.three .tag.alt{color:var(--muted)}
+.three h4{font-family:var(--f-display);font-weight:650;font-size:1rem;margin:4px 0 6px}
+.three p{font-size:.95rem;margin:0}
+
+/* tables */
+.tbl{overflow-x:auto;margin:18px 0;border:1px solid var(--rule);border-radius:3px;background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-family:var(--f-display);font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--tint)}
+td.num{text-align:right;font-family:var(--f-mono);font-size:.85rem}
+tr:last-child td{border-bottom:0}
+tr.ours td{font-weight:650}
+.tbd{color:var(--signal);font-family:var(--f-mono)}
+.draft{display:flex;gap:10px;align-items:flex-start;border:1px dashed var(--signal);color:var(--ink);padding:12px 16px;border-radius:3px;font-family:var(--f-display);font-size:.9rem;margin:14px 0}
+.draft::before{content:"DRAFT";font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;color:var(--signal);padding-top:2px}
+
+/* resources */
+.res{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media (max-width:640px){.res{grid-template-columns:minmax(0,1fr)}}
+.res .card{background:var(--sheet);border:1px solid var(--rule);border-radius:3px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.res .kind{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.res h4{font-family:var(--f-display);font-weight:650;font-size:1.05rem;margin:0}
+.res p{font-size:.93rem;margin:0;color:var(--muted)}
+.res .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:8px;flex-wrap:wrap}
+.state{font-family:var(--f-mono);font-size:.72rem;padding:2px 8px;border-radius:20px;border:1px solid currentColor}
+.state.ok{color:var(--accent)}
+.state.wait{color:var(--signal)}
+
+/* bibtex */
+.bib{position:relative;background:var(--code);border-radius:3px;padding:16px 18px;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-height:1.55}
+.bib pre{margin:0;white-space:pre}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--f-display);font-size:.78rem;font-weight:600;background:var(--sheet);color:var(--ink);border:1px solid var(--rule);padding:4px 10px;border-radius:3px;cursor:pointer}
+
+/* references */
+ol.refs{padding-left:0;list-style:none;counter-reset:r;font-size:.93rem;display:grid;gap:8px;margin:14px 0 0}
+ol.refs li{counter-increment:r;display:grid;grid-template-columns:42px minmax(0,1fr);gap:6px}
+ol.refs li::before{content:"[" counter(r) "]";font-family:var(--f-mono);font-size:.8rem;color:var(--muted);padding-top:2px}
+ol.refs i{font-style:italic}
+
+.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;margin-top:14px;border-top:1px solid var(--rule)}
+@media (max-width:640px){.links{grid-template-columns:minmax(0,1fr)}}
+.links a{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--rule);text-decoration:none;color:var(--ink);font-family:var(--f-display);font-size:.95rem;min-width:0}
+.links a span{color:var(--muted);font-size:.82rem;font-family:var(--f-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links a:hover{color:var(--accent)}
+
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-family:var(--f-display);font-size:.84rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <div class="lbl">Contents</div>
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#contributions">Contributions</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#reference-map">Reference map</a></li>
+    <li><a href="#experiments">Experiments</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#resources">Downloads</a></li>
+    <li><a href="#citation">Citation</a></li>
+    <li><a href="#references">References</a></li>
+    <li><a href="#links">Related sites</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <canvas id="contours" aria-hidden="true"></canvas>
+  <div class="eyebrow">Doctoral Dissertation · 2026</div>
+  <h1>Vision-Based Absolute Positioning of AAM Aircraft Using National 3D Spatial Information as a Reference Map</h1>
+  <p class="kr-title">국가 3차원 공간정보를 참조지도로 활용한 AAM 기체의 영상 기반 절대 측위 연구</p>
+  <div class="meta">
+    <div><b>In-Sung Jang</b> <span>(장인성)</span></div>
+    <div><span>Dept. of Information Convergence Engineering</span></div>
+    <div><span>[University name]</span></div>
+  </div>
+  <div class="btns" id="hero-btns"></div>
+</header>
+
+<section id="abstract">
+  <h2><span class="no">00</span>Abstract</h2>
+  <div class="abstract">
+    <p>Advanced Air Mobility (AAM) vehicles will fly low over dense cities, where GNSS signals are blocked, reflected, or jammed. Certified operation requires an independent way to know where the aircraft is. This dissertation proposes a vision-based absolute positioning system that estimates the full 6-DoF position and attitude of an AAM vehicle from its onboard camera, using Korea's national 3D spatial data (NGII LoD1 building models and V-World 3D Tiles) as the reference map.</p>
+    <p>The system works coarse-to-fine. A visual place recognition (VPR) stage retrieves the reference views that match the current frame. A dense feature-matching stage then links image pixels to 3D points on the map, and a gravity-constrained, robust Perspective-n-Point (PnP) solver computes the metric pose. The pose is fused with inertial measurements in an Extended Kalman Filter (EKF). A lightweight texture-quality gate skips frames that cannot be matched reliably. The design targets onboard embedded hardware and the 300–600 m altitude band typical of urban AAM corridors.</p>
+    <p class="kw"><b>Keywords</b> — AAM/UAM, visual localization, visual place recognition, dense feature matching, PnP, 3D Tiles, GNSS-denied navigation, A-PNT</p>
+  </div>
+</section>
+
+<section id="motivation">
+  <h2><span class="no">01</span>Research motivation</h2>
+  <div class="sub">Why an aircraft needs to see where it is</div>
+  <p class="lede">GNSS is the default position source for every aircraft, and it is also the weakest link at the altitudes where AAM will operate.</p>
+  <p>Urban canyons cause multipath and signal blockage, and GNSS jamming and spoofing incidents have grown sharply in recent years. Inertial navigation alone drifts without bound. Relative vision methods such as visual odometry (VO), visual-inertial odometry (VIO) and SLAM reduce the drift but cannot remove it, because they never reference the world frame.</p>
+  <p>Absolute visual localization closes that gap: if the aircraft can match what its camera sees against a geo-referenced map, it recovers its position in the world frame with no radio signal at all. Aviation authorities (FAA, EASA, NASA) and the Korean K-UAM roadmap all identify alternative positioning, navigation and timing (A-PNT) as a prerequisite for routine urban flight.</p>
+  <h3>Why national 3D spatial data</h3>
+  <p>Most published aerial localization work matches against 2D satellite orthophotos. At AAM altitudes over high-rise districts this fails geometrically: building tops are displaced from their footprints (relief displacement), so a 2D-to-2D homography cannot explain the image. Korea already maintains nationwide 3D building data through the National Geographic Information Institute (NGII) and the V-World platform. Using that 3D data as the reference map lets the system render what the camera should see from any candidate viewpoint and solve the pose with true 2D–3D geometry.</p>
+  <h3>Practical constraints</h3>
+  <ul class="plain">
+    <li><b>Onboard compute.</b> The full pipeline must run on Jetson-class hardware under size, weight and power (SWaP) limits.</li>
+    <li><b>Integrity.</b> Certification needs the system to know when it is wrong, not only to be accurate on average.</li>
+    <li><b>Cross-domain imagery.</b> Live oblique camera frames differ from rendered or satellite reference imagery in season, lighting and viewpoint.</li>
+  </ul>
+</section>
+
+<section id="contributions">
+  <h2><span class="no">02</span>Research content and contributions</h2>
+  <div class="contrib">
+    <div><span class="n">C1</span><span><b>Hierarchical coarse-to-fine framework.</b> A complete pipeline from image retrieval to metric 6-DoF pose, designed around national 3D spatial data served as a localization reference service.</span></div>
+    <div><span class="n">C2</span><span><b>Reference-data strategy for 300–600 m flight.</b> A systematic comparison of 2D↔2D, 2D↔3D and 3D↔3D reference combinations, establishing render-based 2D↔3D PnP as the primary path and the others as fallbacks.</span></div>
+    <div><span class="n">C3</span><span><b>Texture-quality gating.</b> A fast cascade detector that rejects low-texture frames (water, uniform roofs, fields) before matching, saving compute and preventing false fixes.</span></div>
+    <div><span class="n">C4</span><span><b>Robust, gravity-constrained pose estimation.</b> Two independent robust-estimation stages (matching and PnP) using MAGSAC++ and graduated non-convexity (GNC), with the IMU gravity vector reducing the pose search space.</span></div>
+    <div><span class="n">C5</span><span><b>Embedded deployment.</b> Distilled foundation-model backbones (DINOv3 ViT/ConvNeXt variants) selected for Jetson-class inference and quantization robustness.</span></div>
+  </div>
+</section>
+
+<section id="method">
+  <h2><span class="no">03</span>Method</h2>
+  <div class="sub">Coarse-to-fine visual localization</div>
+  <p>Each incoming camera frame passes through four stages. Only frames that pass the texture gate reach the expensive matching steps, and the EKF keeps a continuous pose estimate between successful visual fixes.</p>
+
+<figure>
+  <div class="fig-scroll">
+  <svg viewBox="0 0 960 300" width="960" role="img" aria-label="Pipeline: onboard frame, texture gate, VPR retrieval, dense matching, robust PnP, EKF fusion">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+    </defs>
+    <g font-size="13">
+      <!-- input -->
+      <rect x="10" y="40" width="120" height="70" rx="3" fill="var(--sheet)" stroke="var(--ink)"/>
+      <text x="70" y="70" text-anchor="middle" fill="var(--ink)" font-weight="650">Onboard</text>
+      <text x="70" y="88" text-anchor="middle" fill="var(--ink)" font-weight="650">camera frame</text>
+
+      <rect x="160" y="40" width="130" height="70" rx="3" fill="var(--sheet)" stroke="var(--signal)"/>
+      <text x="225" y="62" text-anchor="middle" fill="var(--signal)" font-size="11" font-family="IBM Plex Mono, monospace">STAGE 0</text>
+      <text x="225" y="80" text-anchor="middle" fill="var(--ink)" font-weight="650">Texture gate</text>
+      <text x="225" y="97" text-anchor="middle" fill="var(--muted)" font-size="11.5">Sobel cascade</text>
+
+      <rect x="320" y="40" width="150" height="70" rx="3" fill="var(--tint)" stroke="var(--accent)"/>
+      <text x="395" y="62" text-anchor="middle" fill="var(--accent)" font-size="11" font-family="IBM Plex Mono, monospace">STAGE 1 · COARSE</text>
+      <text x="395" y="80" text-anchor="middle" fill="var(--ink)" font-weight="650">VPR retrieval</text>
+      <text x="395" y="97" text-anchor="middle" fill="var(--muted)" font-size="11.5">DINOv3 + aggregator</text>
+
+      <rect x="500" y="40" width="150" height="70" rx="3" fill="var(--tint)" stroke="var(--accent)"/>
+      <text x="575" y="62" text-anchor="middle" fill="var(--accent)" font-size="11" font-family="IBM Plex Mono, monospace">STAGE 2 · FINE</text>
+      <text x="575" y="80" text-anchor="middle" fill="var(--ink)" font-weight="650">Dense matching</text>
+      <text x="575" y="97" text-anchor="middle" fill="var(--muted)" font-size="11.5">RoMa v2 · 2D↔3D</text>
+
+      <rect x="680" y="40" width="150" height="70" rx="3" fill="var(--tint)" stroke="var(--accent)"/>
+      <text x="755" y="62" text-anchor="middle" fill="var(--accent)" font-size="11" font-family="IBM Plex Mono, monospace">STAGE 3 · POSE</text>
+      <text x="755" y="80" text-anchor="middle" fill="var(--ink)" font-weight="650">Robust PnP</text>
+      <text x="755" y="97" text-anchor="middle" fill="var(--muted)" font-size="11.5">gravity + MAGSAC++/GNC</text>
+
+      <rect x="860" y="40" width="90" height="70" rx="3" fill="var(--ink)"/>
+      <text x="905" y="72" text-anchor="middle" fill="var(--paper)" font-weight="700">6-DoF</text>
+      <text x="905" y="90" text-anchor="middle" fill="var(--paper)" font-size="11.5">pose</text>
+
+      <line x1="130" y1="75" x2="158" y2="75" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <line x1="290" y1="75" x2="318" y2="75" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <line x1="470" y1="75" x2="498" y2="75" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <line x1="650" y1="75" x2="678" y2="75" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <line x1="830" y1="75" x2="858" y2="75" stroke="var(--muted)" marker-end="url(#ar)"/>
+
+      <!-- reject path -->
+      <path d="M225 40 V18 H70 V38" fill="none" stroke="var(--signal)" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+      <text x="148" y="13" text-anchor="middle" fill="var(--signal)" font-size="11.5">low texture → skip frame</text>
+
+      <!-- reference map -->
+      <rect x="320" y="190" width="330" height="62" rx="3" fill="var(--sheet)" stroke="var(--rule)"/>
+      <text x="485" y="216" text-anchor="middle" fill="var(--ink)" font-weight="650">Reference map service</text>
+      <text x="485" y="236" text-anchor="middle" fill="var(--muted)" font-size="11.5">V-World 3D Tiles · NGII LoD1 · geo-tagged renders + descriptors</text>
+      <line x1="395" y1="190" x2="395" y2="112" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <line x1="575" y1="190" x2="575" y2="112" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <text x="402" y="158" fill="var(--muted)" font-size="11">descriptor DB</text>
+      <text x="582" y="158" fill="var(--muted)" font-size="11">render + depth</text>
+
+      <!-- EKF -->
+      <rect x="700" y="190" width="250" height="62" rx="3" fill="var(--sheet)" stroke="var(--rule)"/>
+      <text x="825" y="216" text-anchor="middle" fill="var(--ink)" font-weight="650">EKF fusion with IMU</text>
+      <text x="825" y="236" text-anchor="middle" fill="var(--muted)" font-size="11.5">continuous pose · integrity check</text>
+      <line x1="905" y1="110" x2="905" y2="188" stroke="var(--muted)" marker-end="url(#ar)"/>
+      <path d="M720 190 V150 H230 V112" fill="none" stroke="var(--muted)" stroke-dasharray="2 3" marker-end="url(#ar)"/>
+      <text x="300" y="144" fill="var(--muted)" font-size="11">pose prior → search radius, gravity vector</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption><b>Figure 1.</b> System overview. The EKF prior narrows the retrieval search and supplies the gravity direction to the PnP solver; frames rejected by the texture gate never reach the matcher.</figcaption>
+</figure>
+
+  <h3>Stage 0 — Texture-quality gate</h3>
+  <p>A cascade detector built on Sobel gradient statistics estimates how much matchable structure a frame contains. Water bodies, uniform rooftops and cloud-covered frames are rejected in a few milliseconds. The classical operator was chosen deliberately for speed; a learned matchability predictor is a drop-in alternative.</p>
+  <h3>Stage 1 — Visual place recognition (coarse)</h3>
+  <p>A self-supervised foundation backbone (DINOv3, distilled for embedded use) extracts dense patch features, and a VPR aggregator (SALAD, BoQ or SelaVPR) pools them into a single global descriptor. The descriptor is compared against a pre-built database of geo-tagged reference views to produce a short list of candidate locations. The EKF prior limits the search to a plausible radius.</p>
+  <h3>Stage 2 — Dense feature matching (fine)</h3>
+  <p>For each candidate, the query frame is matched against a reference rendered from the 3D map at a nearby viewpoint. A dense matcher (RoMa v2) returns pixel correspondences with confidence. Because every rendered pixel carries a depth value, each match becomes a 2D–3D correspondence in the world frame. A first robust-estimation pass removes geometrically inconsistent matches.</p>
+  <h3>Stage 3 — Robust, gravity-constrained PnP</h3>
+  <p>The IMU provides roll and pitch with good accuracy, so the solver only needs to estimate position and heading. This reduces the problem from six to four degrees of freedom, improving both speed and robustness. MAGSAC++ and graduated non-convexity reject the remaining outliers. The matching-stage and PnP-stage robust estimators are not redundant: the first filters wrong correspondences, the second filters correspondences that are locally plausible but globally inconsistent with a single camera pose.</p>
+  <h3>EKF fusion</h3>
+  <p>Visual fixes arrive intermittently. An Extended Kalman Filter propagates the state with IMU data between fixes, updates it when a fix arrives, and uses the innovation to flag fixes that disagree with the motion model.</p>
+</section>
+
+<section id="reference-map">
+  <h2><span class="no">04</span>Reference map design</h2>
+  <div class="sub">Three ways to pair the query with the map</div>
+  <p>The choice of reference data decides which geometry the solver can use. The dissertation compares three combinations for the 300–600 m altitude band.</p>
+<div class="three">
+  <div><span class="tag alt">Fallback</span><h4>2D ↔ 2D homography</h4><p>Query against orthophotos. Simple and fast, but relief displacement of tall buildings violates the planar assumption in dense urban areas.</p></div>
+  <div><span class="tag primary">Primary</span><h4>2D ↔ 3D render + PnP</h4><p>Query against views rendered from 3D Tiles with per-pixel depth. Handles building height correctly and gives a full metric pose.</p></div>
+  <div><span class="tag alt">Fallback</span><h4>3D ↔ 3D registration</h4><p>Reconstructed local point cloud aligned to the 3D model with a rigid transform. Useful when single-frame matching is weak.</p></div>
+</div>
+  <p>Reference data is drawn from V-World 3D Tiles (served in EPSG:3857 / ECEF) and NGII LoD1 building models (native EPSG:5179). All data is transformed into a single local frame. The roughly 60–75 cm offset between geodetic datums is corrected explicitly, since it is of the same order as the target accuracy.</p>
+</section>
+
+<section id="experiments">
+  <h2><span class="no">05</span>Experimental setup</h2>
+  <h3>Datasets</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Dataset</th><th>Type</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td>University-1652</td><td>Drone ↔ satellite, multi-view</td><td>VPR training and benchmark</td></tr>
+      <tr><td>SUES-200</td><td>Drone ↔ satellite, multi-altitude</td><td>Altitude robustness</td></tr>
+      <tr><td>UAV-VisLoc</td><td>UAV frames + orthophoto, absolute pose</td><td>Metric localization benchmark</td></tr>
+      <tr><td>Simulated Korean city</td><td>AirSim flights over V-World 3D Tiles</td><td>300–600 m AAM scenarios with ground truth</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Metrics</h3>
+  <ul class="plain">
+    <li><b>Retrieval</b>: Recall@1 / Recall@5 within a distance threshold.</li>
+    <li><b>Localization</b>: horizontal and vertical position error (m), heading error (°), and success rate under fixed error thresholds.</li>
+    <li><b>Runtime</b>: per-frame latency on desktop GPU and on a Jetson-class module.</li>
+  </ul>
+</section>
+
+<section id="results">
+  <h2><span class="no">06</span>Results and performance</h2>
+  <div class="draft">Measured values from Chapter 4 of the dissertation go in the cells marked TBD. No number on this page has been filled in yet.</div>
+  <h3>Localization accuracy</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Method</th><th>Recall@1</th><th>Pos. err. (m)</th><th>Heading err. (°)</th><th>Success @ 5 m</th></tr></thead>
+    <tbody>
+      <tr><td>2D↔2D homography baseline</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr><td>VPR only (nearest reference)</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num">—</td><td class="num tbd">TBD</td></tr>
+      <tr><td>Ours w/o texture gate</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr class="ours"><td>Ours (full pipeline)</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Runtime</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th>Desktop GPU (ms)</th><th>Jetson-class (ms)</th></tr></thead>
+    <tbody>
+      <tr><td>Texture gate</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr><td>VPR retrieval</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr><td>Dense matching</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr><td>Robust PnP + EKF</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+      <tr class="ours"><td>Total per frame</td><td class="num tbd">TBD</td><td class="num tbd">TBD</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Findings</h3>
+  <ul class="plain">
+    <li>Render-based 2D↔3D matching remains valid over high-rise districts where the 2D orthophoto baseline breaks down because of relief displacement.</li>
+    <li>The texture gate removes frames that would otherwise produce confident but wrong fixes.</li>
+    <li>The gravity constraint reduces PnP to four unknowns, which lowers the number of inliers needed for a stable solution.</li>
+  </ul>
+</section>
+
+<section id="resources">
+  <h2><span class="no">07</span>Downloads</h2>
+  <div class="sub">Thesis, code, video and test data</div>
+  <div class="res" id="res"></div>
+</section>
+
+<section id="citation">
+  <h2><span class="no">08</span>Citation</h2>
+  <div class="bib">
+    <button class="copy" id="copy" type="button">Copy</button>
+<pre id="bibtex">@phdthesis{jang2026aam,
+  author = {Jang, In-Sung},
+  title  = {Vision-Based Absolute Positioning of {AAM} Aircraft Using
+            National {3D} Spatial Information as a Reference Map},
+  school = {[University name]},
+  year   = {2026},
+  note   = {Dept. of Information Convergence Engineering}
+}</pre>
+  </div>
+</section>
+
+<section id="references">
+  <h2><span class="no">09</span>Key references</h2>
+  <p style="font-size:.93rem;color:var(--muted)">A selection of the works the method builds on. The full list is in the dissertation.</p>
+  <ol class="refs">
+    <li><span>M. Oquab <i>et al.</i>, "DINOv2: Learning robust visual features without supervision," <i>Trans. Mach. Learn. Res.</i>, 2024.</span></li>
+    <li><span>O. Siméoni <i>et al.</i>, "DINOv3," arXiv:2508.10104, 2025.</span></li>
+    <li><span>S. Izquierdo and J. Civera, "Optimal transport aggregation for visual place recognition," in <i>Proc. IEEE/CVF CVPR</i>, 2024.</span></li>
+    <li><span>A. Ali-bey, B. Chaib-draa, and P. Giguère, "BoQ: A place is worth a bag of learnable queries," in <i>Proc. IEEE/CVF CVPR</i>, 2024.</span></li>
+    <li><span>F. Lu <i>et al.</i>, "Towards seamless adaptation of pre-trained models for visual place recognition," in <i>Proc. ICLR</i>, 2024.</span></li>
+    <li><span>G. Berton and C. Masone, "MegaLoc: One retrieval to place them all," arXiv:2502.17237, 2025.</span></li>
+    <li><span>J. Edstedt <i>et al.</i>, "RoMa: Robust dense feature matching," in <i>Proc. IEEE/CVF CVPR</i>, 2024.</span></li>
+    <li><span>P. Lindenberger, P.-E. Sarlin, and M. Pollefeys, "LightGlue: Local feature matching at light speed," in <i>Proc. IEEE/CVF ICCV</i>, 2023.</span></li>
+    <li><span>D. DeTone, T. Malisiewicz, and A. Rabinovich, "SuperPoint: Self-supervised interest point detection and description," in <i>Proc. IEEE/CVF CVPR Workshops</i>, 2018.</span></li>
+    <li><span>D. Barath, J. Noskova, M. Ivashechkin, and J. Matas, "MAGSAC++, a fast, reliable and accurate robust estimator," in <i>Proc. IEEE/CVF CVPR</i>, 2020.</span></li>
+    <li><span>H. Yang, P. Antonante, V. Tzoumas, and L. Carlone, "Graduated non-convexity for robust spatial perception: From non-minimal solvers to global outlier rejection," <i>IEEE Robot. Autom. Lett.</i>, vol. 5, no. 2, 2020.</span></li>
+    <li><span>G. Terzakis and M. Lourakis, "A consistently fast and globally optimal solution to the perspective-n-point problem," in <i>Proc. ECCV</i>, 2020.</span></li>
+    <li><span>Z. Zheng, Y. Wei, and Y. Yang, "University-1652: A multi-view multi-source benchmark for drone-based geo-localization," in <i>Proc. ACM Multimedia</i>, 2020.</span></li>
+    <li><span>S. Shah, D. Dey, C. Lovett, and A. Kapoor, "AirSim: High-fidelity visual and physical simulation for autonomous vehicles," in <i>Field and Service Robotics</i>, 2017.</span></li>
+    <li><span>Open Geospatial Consortium, "3D Tiles Specification 1.1," OGC Community Standard, 2023.</span></li>
+  </ol>
+</section>
+
+<section id="links">
+  <h2><span class="no">10</span>Related sites</h2>
+  <div class="links">
+    <a href="https://www.vworld.kr" target="_blank" rel="noopener">V-World (국토교통부 공간정보 오픈플랫폼)<span>vworld.kr</span></a>
+    <a href="https://www.ngii.go.kr" target="_blank" rel="noopener">National Geographic Information Institute<span>ngii.go.kr</span></a>
+    <a href="https://www.ogc.org/standards/3dtiles/" target="_blank" rel="noopener">OGC 3D Tiles standard<span>ogc.org</span></a>
+    <a href="https://github.com/facebookresearch/dinov3" target="_blank" rel="noopener">DINOv3<span>github.com</span></a>
+    <a href="https://github.com/Parskatt/RoMa" target="_blank" rel="noopener">RoMa dense matcher<span>github.com</span></a>
+    <a href="https://github.com/cvg/LightGlue" target="_blank" rel="noopener">LightGlue<span>github.com</span></a>
+    <a href="https://github.com/microsoft/AirSim" target="_blank" rel="noopener">AirSim simulator<span>github.com</span></a>
+    <a href="https://scholar.google.com" target="_blank" rel="noopener">Author on Google Scholar<span>scholar.google.com</span></a>
+  </div>
+</section>
+
+<footer>© 2026 In-Sung Jang · Doctoral dissertation project page</footer>
+</main>
+</div>
+
+<script>
+/* Edit the url fields when files are ready. Empty url = shown as "Coming soon". */
+const RESOURCES = [
+  {kind:"Thesis · PDF", title:"Dissertation full text", desc:"Complete dissertation, including all chapters, appendices and the full reference list.", url:"", label:"Download PDF"},
+  {kind:"Code · GitHub", title:"System source code", desc:"Localization pipeline (texture gate, VPR, matching, PnP, EKF) and the WPF texture-detector tool.", url:"", label:"View repository"},
+  {kind:"Video · MP4", title:"Demonstration video", desc:"Simulated AAM flight over a Korean city with live pose estimates overlaid on the 3D map.", url:"", label:"Watch video"},
+  {kind:"Data · ZIP", title:"Testing data", desc:"Query frames, ground-truth poses, and the reference renders and descriptor database used in the experiments.", url:"", label:"Download data"}
+];
+const res = document.getElementById("res");
+RESOURCES.forEach(r=>{
+  const ok = !!r.url;
+  const d = document.createElement("div"); d.className="card";
+  d.innerHTML = `<span class="kind">${r.kind}</span><h4>${r.title}</h4><p>${r.desc}</p>
+    <div class="row"><span class="state ${ok?"ok":"wait"}">${ok?"Available":"Coming soon"}</span>
+    ${ok?`<a class="btn" href="${r.url}" target="_blank" rel="noopener">${r.label}</a>`:`<span class="btn pending" aria-disabled="true">${r.label}</span>`}</div>`;
+  res.appendChild(d);
+});
+const hb = document.getElementById("hero-btns");
+[["Thesis",0],["Code",1],["Video",2],["Data",3]].forEach(([n,i])=>{
+  const r=RESOURCES[i], a=document.createElement("a");
+  a.className="btn"+(r.url?"":" pending"); a.href=r.url||"#resources";
+  if(r.url){a.target="_blank";a.rel="noopener"}
+  a.innerHTML = n + (r.url?"":" <small>soon</small>");
+  hb.appendChild(a);
+});
+
+document.getElementById("copy").addEventListener("click",e=>{
+  const t=document.getElementById("bibtex").textContent, b=e.currentTarget;
+  const done=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1600)};
+  if(navigator.clipboard){navigator.clipboard.writeText(t).then(done).catch(sel)}else sel();
+  function sel(){const r=document.createRange();r.selectNodeContents(document.getElementById("bibtex"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Press Ctrl+C"}
+});
+
+/* contour-line backdrop (static, drawn once) */
+(function(){
+  const c=document.getElementById("contours"), x=c.getContext("2d");
+  function draw(){
+    const w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;
+    c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+    const col=getComputedStyle(document.documentElement).getPropertyValue("--rule").trim();
+    x.strokeStyle=col;x.lineWidth=1;
+    const f=(px,py)=>Math.sin(px*.008+1.3)*Math.cos(py*.011)+.6*Math.sin((px+py)*.005)+.4*Math.cos(px*.013-py*.007);
+    for(let lv=-1.4;lv<=1.4;lv+=.2){
+      x.beginPath();
+      for(let gx=w*.35;gx<w;gx+=6){for(let gy=0;gy<h;gy+=6){
+        const a=f(gx,gy)-lv,b=f(gx+6,gy)-lv,d=f(gx,gy+6)-lv;
+        if(a*b<0){const t=a/(a-b);x.moveTo(gx+t*6,gy);x.lineTo(gx+t*6+.8,gy+.8)}
+        if(a*d<0){const t=a/(a-d);x.moveTo(gx,gy+t*6);x.lineTo(gx+.8,gy+t*6+.8)}
+      }}
+      x.stroke();
+    }
+  }
+  draw(); let to; addEventListener("resize",()=>{clearTimeout(to);to=setTimeout(draw,150)});
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",draw);
+})();
+
+/* index highlight */
+const links=[...document.querySelectorAll(".toc a")];
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle("on",l.getAttribute("href")==="#"+e.target.id))}})},{rootMargin:"-30% 0px -60% 0px"});
+document.querySelectorAll("section[id]").forEach(s=>io.observe(s));
+</script>
+
+</body>
+</html>
+
+</body></html>
